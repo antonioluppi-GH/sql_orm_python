@@ -55,7 +55,7 @@ Nota: Alumno solo es necesario que capture todos los campos especificados en el 
 - available_quantity
 - sold_quantity
 
-Notar que en el medio de la URL se está especificando que queremos obtener los Departamentos y Alquileres en la Ciudad de "__Mendoza__". Esto pueden modificarlo para jugar y obtener diferentes resultados.
+
 
 
 ## create_schema

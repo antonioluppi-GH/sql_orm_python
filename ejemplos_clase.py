@@ -152,7 +152,7 @@ def update_persona_nationality(name, country):
     # Buscar la nacionalidada que se desea actualizar
     query = session.query(Nacionalidad).filter(Nacionalidad.country == country)
     nationality = query.first()
-
+    
     # Actualizar la persona con nombre "name"
     #session.query(Persona).filter(Persona.name == name).update({Persona.nacionalidad_id: nationality.id})
 

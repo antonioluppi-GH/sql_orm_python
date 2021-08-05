@@ -15,12 +15,13 @@ __author__ = "Inove Coding School"
 __email__ = "alumnos@inove.com.ar"
 __version__ = "1.1"
 
+from os import name
 import sqlite3
 
 import sqlalchemy
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import session, sessionmaker, relationship
 
 # Crear el motor (engine) de la base de datos
 engine = sqlalchemy.create_engine("sqlite:///secundaria.db")
@@ -76,14 +77,40 @@ def fill():
 
     # No olvidarse que antes de poder crear un estudiante debe haberse
     # primero creado el tutor.
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    
+    tutor1 = Tutor(name='Moshe')
+    tutor2 = Tutor(name='Bergman')
+
+    estudiante1 = Estudiante(name='Abdul', age=18, grade=5, tutor_id=2)
+    estudiante2 = Estudiante(name='Athos', age=18, grade=5, tutor_id=2)
+    estudiante3 = Estudiante(name='Jana', age=18, grade=5, tutor_id=2)
+    estudiante4 = Estudiante(name='Daniel', age=16, grade=4, tutor_id=1)
+    estudiante5 = Estudiante(name='Nassim', age=14, grade=2, tutor_id=1)
+    
+    session.add(tutor1)
+    session.add(tutor2)
+    session.add(estudiante1)
+    session.add(estudiante2)
+    session.add(estudiante3)
+    session.add(estudiante4)
+    session.add(estudiante5)
+    
+    session.commit()
 
 
 def fetch():
-    print('Comprovemos su contenido, ¿qué hay en la tabla?')
+    print('Comprobemos su contenido, ¿qué hay en la tabla?')
     # Crear una query para imprimir en pantalla
     # todos los objetos creaods de la tabla estudiante.
     # Imprimir en pantalla cada objeto que traiga la query
     # Realizar un bucle para imprimir de una fila a la vez
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    query = session.query(Estudiante)
+    for estudiante in query:
+        print(estudiante)
 
 
 def search_by_tutor(tutor):
@@ -95,6 +122,11 @@ def search_by_tutor(tutor):
     # Para poder realizar esta query debe usar join, ya que
     # deberá crear la query para la tabla estudiante pero
     # buscar por la propiedad de tutor.name
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    query = session.query(Estudiante.id).join(Estudiante.tutor).filter(Tutor.name==tutor)
+    id_est_tutor = query.all()
+    print('id de los estudiantes de', tutor, ':', id_est_tutor)
 
 
 def modify(id, name):
@@ -109,7 +141,19 @@ def modify(id, name):
 
     # TIP: En clase se hizo lo mismo para las nacionalidades con
     # en la función update_persona_nationality
-
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    
+    nuevo_tutor = Tutor(name=name)
+    
+    query = session.query(Estudiante).filter(Estudiante.id == id)
+    estudiante_actualizado = query.first()
+    
+    estudiante_actualizado.tutor = nuevo_tutor
+    
+    session.add(estudiante_actualizado)
+    session.commit()
+    print(' id del estudiante actualizado ', id)
 
 def count_grade(grade):
     print('Estudiante por grado')
@@ -119,20 +163,26 @@ def count_grade(grade):
 
     # TIP: En clase se hizo lo mismo para las nacionalidades con
     # en la función count_persona
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    result = session.query(Estudiante).filter(Estudiante.grade == grade).count()
+    print('Estudiantes de', grade, ' grado:', result)
 
 
 if __name__ == '__main__':
     print("Bienvenidos a otra clase de Inove con Python")
     create_schema()   # create and reset database (DB)
-    # fill()
-    # fetch()
 
-    tutor = 'nombre_tutor'
-    # search_by_tutor(tutor)
+    fill()
+    fetch()
 
-    nuevo_tutor = 'nombre_tutor'
+    tutor = 'Bergman'
+    search_by_tutor(tutor)
+
+    nuevo_tutor = 'nuevo_tutor'
     id = 2
-    # modify(id, nuevo_tutor)
-
+    modify(id, nuevo_tutor)
+    
     grade = 2
-    # count_grade(grade)
+    count_grade(grade)
